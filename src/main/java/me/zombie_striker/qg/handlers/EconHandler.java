@@ -11,27 +11,33 @@ public class EconHandler {
 
     public static Economy econ;
 
-    public static boolean setupEconomy() {
-        if (Bukkit.getServer().getPluginManager().getPlugin("Vault") == null) {
-            return false;
-        }
-        final RegisteredServiceProvider<Economy> rsp = Bukkit.getServer().getServicesManager().getRegistration(Economy.class);
-        if (rsp == null) {
-            return false;
-        }
-        EconHandler.econ = rsp.getProvider();
-        return EconHandler.econ != null;
-    }
+	public static boolean setupEconomy() {
+		if (Bukkit.getServer().getPluginManager().getPlugin("Vault") == null) return false;
 
-    public static boolean hasEnough(final CustomBaseObject base, final Player player) {
-        return (EconHandler.econ.getBalance(player) >= base.getPrice());
-    }
+		RegisteredServiceProvider<Economy> rsp = Bukkit.getServer().getServicesManager().getRegistration(Economy.class);
+		if (rsp == null) return false;
 
-    public static void pay(final CustomBaseObject base, final Player player) { EconHandler.econ.withdrawPlayer(player, base.getPrice()); }
+		econ = rsp.getProvider();
+		return true;
+	}
+	
+	public static boolean hasEnough(CustomBaseObject base, Player player) {
+		return econ.has(player, base.getPrice());
+	}
 
-    public static boolean hasEnough(final int cost, final Player player) { return (EconHandler.econ.getBalance(player) >= cost); }
+	public static void pay(CustomBaseObject base, Player player) {
+		econ.withdrawPlayer(player, base.getPrice());
+	}
 
-    public static void pay(final int cost, final Player player) { EconHandler.econ.withdrawPlayer(player, cost); }
+	public static boolean hasEnough(int cost, Player player) {
+		return econ.has(player, cost);
+	}
 
-    public static void deposit(final int cost, final Player player) { EconHandler.econ.depositPlayer(player, cost); }
+	public static void pay(int cost, Player player) {
+		econ.withdrawPlayer(player, cost);
+	}
+
+	public static void deposit(int cost, Player player) {
+		econ.depositPlayer(player, cost);
+	}
 }

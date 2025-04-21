@@ -185,9 +185,12 @@ public class Gun extends CustomBaseObject implements ArmoryBaseObject, Comparabl
         });
     }
 
-    public static void updateAmmo(final Gun g, final Player player, final int amount) {
-        final ItemStack current = player.getInventory().getItemInMainHand();
-        Gun.updateAmmo(g, current, amount);
+    public static void updateAmmo(Gun g, Player player, int amount) {
+        ItemStack current = player.getInventory().getItemInHand();
+        updateAmmo(g, current, amount);
+
+        if (QAMain.showAmmoInXPBar)
+            GunUtil.updateXPBar(player, g, amount);
     }
 
     public static List<String> getGunLore(final Gun g, final ItemStack current, final int amount) {

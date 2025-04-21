@@ -65,25 +65,25 @@ public class DelayedBurstFireCharger implements ChargingHandler {
                 if (amount < 0)
                     amount = 0;
 
-                // if (QAMain.enableVisibleAmounts) {
-                // stack.setAmount(amount > 64 ? 64 : amount == 0 ? 1 : amount);
-                // }
-                final ItemMeta im = stack.getItemMeta();
-                int slot;
-                if (this.offhand) {
-                    slot = -1;
-                } else {
-                    slot = player.getInventory().getHeldItemSlot();
-                }
-                Gun.updateAmmo(g, player, amount);
-                stack.setItemMeta(im);
-                if (slot == -1) {
-                    try {
-                        if (QualityArmory.isIronSights(player.getInventory().getItemInMainHand())) {
-                            player.getInventory().setItemInOffHand(stack);
-                        } else {
-                            player.getInventory().setItemInMainHand(stack);
-                        }
+				// if (QAMain.enableVisibleAmounts) {
+				// stack.setAmount(amount > 64 ? 64 : amount == 0 ? 1 : amount);
+				// }
+				ItemMeta im = stack.getItemMeta();
+				int slot;
+				if (offhand) {
+					slot = -1;
+				} else {
+					slot = player.getInventory().getHeldItemSlot();
+				}
+				stack.setItemMeta(im);
+				Gun.updateAmmo(g, stack, amount);
+				if (slot == -1) {
+					try {
+						if (QualityArmory.isIronSights(player.getItemInHand())) {
+							player.getInventory().setItemInOffHand(stack);
+						} else {
+							player.getInventory().setItemInHand(stack);
+						}
 
                     } catch (final Error e) {
                     }

@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -15,12 +17,16 @@ import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.SkullMeta;
+
+import com.cryptomorin.xseries.profiles.builder.XSkull;
+import com.cryptomorin.xseries.profiles.objects.ProfileInputType;
+import com.cryptomorin.xseries.profiles.objects.Profileable;
 
 import me.zombie_striker.customitemmanager.CustomBaseObject;
 import me.zombie_striker.customitemmanager.CustomItemManager;
 import me.zombie_striker.customitemmanager.MaterialStorage;
 import me.zombie_striker.customitemmanager.OLD_ItemFact;
+import me.zombie_striker.customitemmanager.pack.MultiVersionPackProvider;
 import me.zombie_striker.customitemmanager.qa.AbstractCustomGunItem;
 import me.zombie_striker.qg.QAMain;
 import me.zombie_striker.qg.ammo.Ammo;
@@ -35,16 +41,17 @@ import me.zombie_striker.qg.guns.utils.WeaponSounds;
 import me.zombie_striker.qg.guns.utils.WeaponType;
 import me.zombie_striker.qg.handlers.IronsightsHandler;
 import me.zombie_striker.qg.handlers.MultiVersionLookup;
-import me.zombie_striker.qg.handlers.SkullHandler;
 
-@SuppressWarnings("deprecation")
 public class CustomGunItem extends AbstractCustomGunItem {
 
     private boolean overrideAttackSpeed = true;
 
     public CustomGunItem() {
-        CustomItemManager
-                .setResourcepack("https://github.com/ZombieStriker/QualityArmory-Resourcepack/releases/download/latest/QualityArmory.zip");
+        final Map<String, String> versions = new HashMap<>();
+        versions.put("0", "https://github.com/ZombieStriker/QualityArmory-Resourcepack/releases/download/latest/QualityArmory.zip");
+        versions.put("21-4", "https://github.com/ZombieStriker/QualityArmory-Resourcepack/releases/download/latest/QualityArmory-21.zip");
+
+        CustomItemManager.setResourcepack(new MultiVersionPackProvider(versions));
     }
 
     public static MaterialStorage m(final int d) { return MaterialStorage.getMS(Material.CROSSBOW, d, 0); }
@@ -76,12 +83,14 @@ public class CustomGunItem extends AbstractCustomGunItem {
 
             if (base instanceof Ammo) {
                 boolean setSkull = false;
-                if (((Ammo) base).isSkull() && ((Ammo) base).hasCustomSkin()) {
+
+                if (((Ammo) base).hasCustomSkin()) {
                     setSkull = true;
-                    is = SkullHandler.getCustomSkull64(((Ammo) base).getCustomSkin().getBytes());
+                    is = XSkull.createItem().profile(Profileable.of(ProfileInputType.BASE64, ((Ammo) base).getCustomSkin())).apply();
                 }
+
                 if (((Ammo) base).isSkull() && !setSkull) {
-                    ((SkullMeta) im).setOwner(((Ammo) base).getSkullOwner());
+                    is = XSkull.createItem().profile(Profileable.of(ProfileInputType.USERNAME, ((Ammo) base).getSkullOwner())).apply();
                 }
             }
 
@@ -116,11 +125,6 @@ public class CustomGunItem extends AbstractCustomGunItem {
             if (ms.getData() >= 0)
                 im.setCustomModelData(ms.getData());
 
-            if (is.getType() == Material.CROSSBOW) {
-                // Now the player will hold the crossbow like a gun
-                // CrossbowMeta im2 = (CrossbowMeta) im;
-                // im2.addChargedProjectile(new ItemStack(Material.VOID_AIR));
-            }
             is.setItemMeta(im);
         } else {
             QAMain.getInstance().getLogger().warning(QAMain.prefix + " ItemMeta is null for " + base.getName() + ". I have");

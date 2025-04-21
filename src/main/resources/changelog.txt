@@ -1,6 +1,45 @@
+2.0.20
+  - Added crossbow animation
+
+2.0.19
+  - Fixed resourcepack for 1.21.x
+  - 1.21.5 support
+  - Fixed towny explosions
+  - Fixed slowness issue
+  - Add option to disable recoil based on move
+  - Added headshot blacklist
+  - Fixed ammo in exp bar
+  - Fixed medkit
+  - Fixed block regen
+
+2.0.18
+  - Fixed resourcepack for 1.21.4
+
+2.0.17
+  - 1.21.4 support
+  - Fixed gun duplication
+  - Fixed gun protection
+
+2.0.16
+  - Fixed invalid air drop
+  - 1.21.3 support
+  - Fixed craft amount
+  - Added force resourcepack support
+
+2.0.15
+  - Fixed 1.21 support
+  - Fixed BurstFire charging
+
+2.0.14.1
+  - Fixed 1.21 support
+
+2.0.14
+  - 1.21 support
+  - Added craft item command
+
 2.0.13
   - 1.20.6 support
-
+  - Fixed Sentinel integration
 
 2.0.12
   - 1.20.4 support

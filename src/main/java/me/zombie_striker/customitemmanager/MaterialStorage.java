@@ -9,9 +9,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.SkullMeta;
 
+import com.cryptomorin.xseries.profiles.PlayerProfiles;
+import com.cryptomorin.xseries.profiles.builder.XSkull;
+import com.mojang.authlib.GameProfile;
+
 import me.zombie_striker.qg.QAMain;
 import me.zombie_striker.qg.handlers.MultiVersionLookup;
-import me.zombie_striker.qg.handlers.SkullHandler;
 
 public class MaterialStorage {
 
@@ -76,25 +79,23 @@ public class MaterialStorage {
 
     public static MaterialStorage getMS(final ItemStack is) { return MaterialStorage.getMS(is, MaterialStorage.getVariant(is)); }
 
+    @SuppressWarnings("UnstableApiUsage")
     public static MaterialStorage getMS(final ItemStack is, final int variant) {
 
         if (is == null || is.getItemMeta() == null) {
             return MaterialStorage.EMPTY;
         }
 
-        final String extraData = is.getType() == MultiVersionLookup.getSkull() ? (((SkullMeta) is.getItemMeta()).hasOwner())
-                ? ((SkullMeta) is.getItemMeta()).getOwningPlayer() != null ? ((SkullMeta) is.getItemMeta()).getOwningPlayer().getName()
-                        : null
-                : null : null;
+        final String extraData = is.getType() == MultiVersionLookup.getSkull() ? ((SkullMeta) is.getItemMeta()).getOwner() : null;
         String temp = null;
-        if (extraData != null)
-            temp = SkullHandler.getURL64(is);
+        if (extraData != null) {
+            final GameProfile profile = XSkull.of(is).getProfile();
+            if (profile != null)
+                temp = PlayerProfiles.getTextureValue(profile);
+        }
         try {
-            if (is.getItemMeta() != null)
-                return MaterialStorage.getMS(is.getType(),
-                        is.getItemMeta().hasCustomModelData() ? is.getItemMeta().getCustomModelData() : 0, variant,
-                        is.getType() == MultiVersionLookup.getSkull() ? ((SkullMeta) is.getItemMeta()).getOwningPlayer().getName() : null,
-                        temp);
+            return MaterialStorage.getMS(is.getType(), is.getItemMeta().hasCustomModelData() ? is.getItemMeta().getCustomModelData() : 0, variant,
+                    is.getType() == MultiVersionLookup.getSkull() ? ((SkullMeta) is.getItemMeta()).getOwner() : null, temp);
 
         } catch (Error | Exception e4) {
             if (QAMain.DEBUG)

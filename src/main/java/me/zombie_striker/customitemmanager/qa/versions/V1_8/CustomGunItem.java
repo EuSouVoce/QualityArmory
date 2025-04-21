@@ -1,19 +1,7 @@
 package me.zombie_striker.customitemmanager.qa.versions.V1_8;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-
-import me.zombie_striker.customitemmanager.CustomBaseObject;
-import me.zombie_striker.customitemmanager.CustomItemManager;
-import me.zombie_striker.customitemmanager.MaterialStorage;
-import me.zombie_striker.customitemmanager.OLD_ItemFact;
+import me.zombie_striker.customitemmanager.*;
+import me.zombie_striker.customitemmanager.pack.StaticPackProvider;
 import me.zombie_striker.customitemmanager.qa.AbstractCustomGunItem;
 import me.zombie_striker.qg.QAMain;
 import me.zombie_striker.qg.api.QualityArmory;
@@ -33,14 +21,13 @@ import me.zombie_striker.qg.handlers.MultiVersionLookup;
 
 public class CustomGunItem extends AbstractCustomGunItem {
 
-    public CustomGunItem() {
-        CustomItemManager.setResourcepack("https://www.dropbox.com/s/pjoeg5e8l3byauf/QualityArmory1.8v1.0.3.zip?dl=1");
-    }
-
-    @Override
-    public ItemStack getItem(final Material material, final int data, final int variant) {
-        return this.getItem(MaterialStorage.getMS(material, data, variant));
-    }
+	public CustomGunItem(){
+		CustomItemManager.setResourcepack(new StaticPackProvider("https://www.dropbox.com/s/pjoeg5e8l3byauf/QualityArmory1.8v1.0.3.zip?dl=1"));
+	}
+	@Override
+	public ItemStack getItem(Material material, int data, int variant) {
+		return getItem(MaterialStorage.getMS(material,data,variant));
+	}
 
     @Override
     public ItemStack getItem(final MaterialStorage ms) {

@@ -80,57 +80,61 @@ public class QualityArmory {
 
     public static Iterator<CustomBaseObject> getCustomItems() { return QualityArmory.getCustomItemsAsList().iterator(); }
 
-    public static List<CustomBaseObject> getCustomItemsAsList() {
-        final List<CustomBaseObject> list = new ArrayList<>();
-        list.addAll(QAMain.gunRegister.values());
-        list.addAll(QAMain.ammoRegister.values());
-        list.addAll(QAMain.armorRegister.values());
-        list.addAll(QAMain.miscRegister.values());
-        return list;
-    }
+	public static List<CustomBaseObject> getCustomItemsAsList(){
+		List<CustomBaseObject> list = new ArrayList<>();
+		list.addAll(QAMain.gunRegister.values());
+		list.addAll(QAMain.ammoRegister.values());
+		list.addAll(QAMain.armorRegister.values());
+		list.addAll(QAMain.miscRegister.values());
+		return list;
+	}
 
-    @SuppressWarnings("deprecation")
-    public static void sendResourcepack(final Player player, final boolean warning) {
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (QAMain.namesToBypass.contains(player.getName())) {
-                    QAMain.resourcepackReq.add(player.getUniqueId());
-                    return;
-                }
-                if (warning) {
-                    try {
-                        player.sendTitle(LocalUtils.colorize(ChatColor.RED + QAMain.S_NORES1), LocalUtils.colorize(QAMain.S_NORES2));
-                    } catch (final Error e2) {
-                        player.sendMessage(LocalUtils.colorize(ChatColor.RED + QAMain.S_NORES1));
-                        player.sendMessage(LocalUtils.colorize(ChatColor.RED + QAMain.S_NORES2));
-                    }
-                }
-                if (QAMain.showCrashMessage)
-                    player.sendMessage(LocalUtils.colorize(QAMain.prefix + QAMain.S_RESOURCEPACK_HELP));
 
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            try {
-                                QAMain.DEBUG("Sending resourcepack : " + (QAMain.AutoDetectResourcepackVersion) + " || "
-                                        + QAMain.MANUALLYSELECT1DOT8 + " || " + QAMain.isVersionHigherThan(1, 9) + " || ");
-                                try {
-                                    if (QAMain.hasViaVersion) {
-                                        QAMain.DEBUG("Has Viaversion: "
-                                                + com.viaversion.viaversion.bukkit.util.ProtocolSupportUtil.getProtocolVersion(player)
-                                                + " 1.8=" + QAMain.ViaVersionIdfor_1_8);
+	@SuppressWarnings({"deprecation", "unchecked"})
+	public static void sendResourcepack(final Player player, final boolean warning) {
+		new BukkitRunnable() {
+			@Override
+			public void run() {
+				if (QAMain.namesToBypass.contains(player.getName())) {
+					QAMain.resourcepackReq.add(player.getUniqueId());
+					return;
+				}
+				if (warning) {
+					try {
+						player.sendTitle(LocalUtils.colorize(ChatColor.RED + QAMain.S_NORES1), LocalUtils.colorize(QAMain.S_NORES2));
+					} catch (Error e2) {
+						player.sendMessage(LocalUtils.colorize(ChatColor.RED + QAMain.S_NORES1));
+						player.sendMessage(LocalUtils.colorize(ChatColor.RED + QAMain.S_NORES2));
+					}
+				}
+				if (QAMain.showCrashMessage)
+					player.sendMessage(LocalUtils.colorize(QAMain.prefix + QAMain.S_RESOURCEPACK_HELP));
 
-                                    }
-                                } catch (Error | Exception re4) {
-                                }
-                                player.setResourcePack(CustomItemManager.getResourcepack());
+				new BukkitRunnable() {
+					@Override
+					public void run() {
+						try {
+							try {
+								QAMain.DEBUG("Sending resourcepack : " + (QAMain.AutoDetectResourcepackVersion) + " || "
+										+ QAMain.MANUALLYSELECT18 + " || " + QAMain.isVersionHigherThan(1, 9) + " || ");
+								try {
+									if (QAMain.hasViaVersion) {
+										QAMain.DEBUG(
+												"Has Viaversion: " + com.viaversion.viaversion.api.Via.getAPI()
+														.getPlayerVersion(player) + " 1.8=" + QAMain.ViaVersionIdfor_1_8);
+
+									}
+								} catch (Error | Exception re4) {
+								}
+
+								if (QAMain.isVersionHigherThan(1, 19))
+									player.setResourcePack(CustomItemManager.getResourcepack(player), null, QAMain.kickIfDeniedRequest);
+                                else player.setResourcePack(CustomItemManager.getResourcepack(player));
 
                             } catch (Error | Exception e4) {
 
-                                player.setResourcePack(CustomItemManager.getResourcepack());
-                            }
+								player.setResourcePack(CustomItemManager.getResourcepack(player));
+							}
 
                             if (!QAMain.isVersionHigherThan(1, 9)) {
                                 QAMain.resourcepackReq.add(player.getUniqueId());
@@ -334,15 +338,13 @@ public class QualityArmory {
     public static int getAmmoInBag(@NotNull final Player player, final Ammo a) {
         int amount = 0;
 
-        for (final ItemStack is : player.getInventory().getContents()) {
-            if (is == null || is.getType().equals(Material.AIR))
-                continue;
+		for (ItemStack is : player.getInventory().getContents()) {
+			if (is == null || is.getType().equals(Material.AIR) || !isMisc(is)) continue;
 
-            final CustomBaseObject customItem = QualityArmory.getCustomItem(is);
-            if (customItem instanceof AmmoBag) {
-                final Ammo ammoType = ((AmmoBag) customItem).getAmmoType(is);
-                if (ammoType == null || !ammoType.equals(a))
-                    continue;
+			CustomBaseObject customItem = getMisc(is);
+			if (customItem instanceof AmmoBag) {
+				Ammo ammoType = ((AmmoBag) customItem).getAmmoType(is);
+				if (ammoType == null || !ammoType.equals(a)) continue;
 
                 amount += ((AmmoBag) customItem).getAmmo(is);
             }
@@ -621,16 +623,19 @@ public class QualityArmory {
         return QualityArmory.getCustomItemAsItemStack(QualityArmory.getCustomItemByName(name));
     }
 
-    public static ItemStack getCustomItemAsItemStack(final CustomBaseObject obj) {
-        if (obj == null)
-            return null;
-        return CustomItemManager.getItemType("gun").getItem(obj.getItemData().getMat(), obj.getItemData().getData(),
-                obj.getItemData().getVariant());
-    }
+	public static ItemStack getCustomItemAsItemStack(CustomBaseObject obj) {
+		if (obj == null) return null;
+		return CustomItemManager.getItemType("gun").getItem(obj.getItemData());
+	}
 
     public static ItemStack getIronSightsItemStack() { return OLD_ItemFact.getIronSights(); }
 
-    public static int getAmmoInInventory(final Player player, final Ammo a) { return QualityArmory.getAmmoInInventory(player, a, false); }
+
+
+
+	public static int getAmmoInInventory(Player player, Ammo a) {
+		return getAmmoInInventory(player,a,false);
+	}
 
     public static int getAmmoInInventory(final Player player, final Ammo a, final boolean ignoreBag) {
         int amount = 0;

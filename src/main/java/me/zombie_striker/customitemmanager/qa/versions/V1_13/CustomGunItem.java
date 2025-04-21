@@ -18,6 +18,7 @@ import me.zombie_striker.customitemmanager.CustomBaseObject;
 import me.zombie_striker.customitemmanager.CustomItemManager;
 import me.zombie_striker.customitemmanager.MaterialStorage;
 import me.zombie_striker.customitemmanager.OLD_ItemFact;
+import me.zombie_striker.customitemmanager.pack.StaticPackProvider;
 import me.zombie_striker.customitemmanager.qa.AbstractCustomGunItem;
 import me.zombie_striker.qg.QAMain;
 import me.zombie_striker.qg.api.QualityArmory;
@@ -36,12 +37,13 @@ import me.zombie_striker.qg.handlers.MultiVersionLookup;
 
 public class CustomGunItem extends AbstractCustomGunItem {
 
-    public CustomGunItem() { CustomItemManager.setResourcepack("https://www.dropbox.com/s/b04i5eqtqwrh5ub/QualityArmoryV1.0.40.zip?dl=1"); }
+    public CustomGunItem() {
+        CustomItemManager
+                .setResourcepack(new StaticPackProvider("https://www.dropbox.com/s/b04i5eqtqwrh5ub/QualityArmoryV1.0.40.zip?dl=1"));
+    }
 
     @Override
-    public ItemStack getItem(final Material material, final int data, final int variant) {
-        return this.getItem(MaterialStorage.getMS(material, data, variant));
-    }
+    public ItemStack getItem(final Material material, final int data, final int variant) { return this.getItem(MaterialStorage.getMS(material, data, variant)); }
 
     @Override
     public ItemStack getItem(final MaterialStorage ms) {

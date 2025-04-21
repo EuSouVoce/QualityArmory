@@ -268,20 +268,24 @@ public class QAListener implements Listener {
 
         String name = null;
 
-        if (e.getClickedInventory() instanceof PlayerInventory) {
-            final ItemStack cursor = e.getCursor();
-            final int OFFHAND_SLOT = 40;
-            // null check is done by isGun
-            // offhand slot check also works with hotkey inventory swap (F by default) -
-            // tested on 1.16.5
-            if (e.getSlot() == OFFHAND_SLOT && QualityArmory.isGun(cursor)) {
-                e.setCancelled(true);
-                // restore placed item because cancelling an event seems to wipe it.
-                // it will make cursor item look disappeared, but it'll be dropped when
-                // inventory is closed
-                e.getView().setCursor(cursor);
-            }
-        }
+		if(e.getClickedInventory() instanceof PlayerInventory) {
+			ItemStack cursor = e.getCursor();
+			final int OFFHAND_SLOT = 40;
+			// null check is done by isGun
+			// offhand slot check also works with hotkey inventory swap (F by default) - tested on 1.16.5
+			if(e.getSlot() == OFFHAND_SLOT && QualityArmory.isGun(cursor)) {
+				e.setCancelled(true);
+				// restore placed item because cancelling an event seems to wipe it.
+				// it will make cursor item look disappeared, but it'll be dropped when inventory is closed
+				e.getView().setCursor(cursor);
+			} else {
+				ItemStack item = e.getCurrentItem();
+
+				if (e.getSlot() == OFFHAND_SLOT && QualityArmory.isGun(item)) {
+					e.setCancelled(true);
+				}
+			}
+		}
 
         if (!(e.getInventory().getHolder() instanceof QAInventoryHolder))
             return;
@@ -503,81 +507,76 @@ public class QAListener implements Listener {
         }
     }
 
-    @EventHandler
-    public void onPickup(final EntityPickupItemEvent e) {
-        if (e.isCancelled() || (e.getEntity() instanceof Player) == false || e.getEntity().hasMetadata("NPC"))
-            return;
-        if (QualityArmory.isCustomItem(e.getItem().getItemStack())) {
-            if (QAMain.shouldSend && !QAMain.namesToBypass.contains(e.getEntity().getName())
-                    && !QAMain.resourcepackReq.contains(e.getEntity().getUniqueId())) {
-                QualityArmory.sendResourcepack((Player) e.getEntity(), true);
-            }
+	@SuppressWarnings({"deprecation", "unchecked"})
+	@EventHandler
+	public void onPickup(PlayerPickupItemEvent e) {
+		if (e.isCancelled())
+			return;
+		if (QualityArmory.isCustomItem(e.getItem().getItemStack())) {
+			if (QAMain.shouldSend && !QAMain.namesToBypass.contains(e.getPlayer().getName())
+					&& !QAMain.resourcepackReq.contains(e.getPlayer().getUniqueId())) {
+				QualityArmory.sendResourcepack(e.getPlayer(), true);
+			}
 
-            if (QualityArmory.isGun(e.getItem().getItemStack())) {
-                final Gun g = QualityArmory.getGun(e.getItem().getItemStack());
-                try {
-                    if (QAMain.AutoDetectResourcepackVersion && !QAMain.MANUALLYSELECT1DOT8) {
-                        if (com.viaversion.viaversion.bukkit.util.ProtocolSupportUtil.getProtocolVersion((Player) e.getEntity())
-                                .getVersion() < QAMain.ViaVersionIdfor_1_8) {
-                            if (!g.is18Support()) {
-                                for (final Gun g2 : QAMain.gunRegister.values()) {
-                                    if (g2.is18Support()) {
-                                        if (g2.getDisplayName().equals(g.getDisplayName())) {
-                                            e.getItem().setItemStack(CustomItemManager.getItemType("gun").getItem(g2.getItemData().getMat(),
-                                                    g2.getItemData().getData(), g2.getItemData().getVariant()));
-                                            QAMain.DEBUG("Custom-validation check 1");
-                                            return;
-                                        }
-                                    }
-                                }
-                                // If there is no exact match for 1.8, get the closest gun that uses the same
-                                // ammo type.
-                                for (final Gun g2 : QAMain.gunRegister.values()) {
-                                    if (g2.is18Support()) {
-                                        if (g2.getAmmoType().equals(g.getAmmoType())) {
-                                            e.getItem().setItemStack(CustomItemManager.getItemType("gun").getItem(g2.getItemData().getMat(),
-                                                    g2.getItemData().getData(), g2.getItemData().getVariant()));
-                                            QAMain.DEBUG("Custom-validation check 2");
-                                            return;
-                                        }
-                                    }
-                                }
-                            }
-                        } else {
-                            if (com.viaversion.viaversion.bukkit.util.ProtocolSupportUtil.getProtocolVersion((Player) e.getEntity())
-                                    .getVersion() >= QAMain.ViaVersionIdfor_1_8) {
-                                if (g.is18Support()) {
-                                    for (final Gun g2 : QAMain.gunRegister.values()) {
-                                        if (!g2.is18Support()) {
-                                            if (g2.getDisplayName().equals(g.getDisplayName())) {
-                                                e.getItem().setItemStack(
-                                                        CustomItemManager.getItemType("gun").getItem(g2.getItemData().getMat(),
-                                                                g2.getItemData().getData(), g2.getItemData().getVariant()));
-                                                QAMain.DEBUG("Custom-validation check 3");
-                                                return;
-                                            }
-                                        }
-                                    }
-                                    // If there is no exact match for 1.8, get the closest gun that uses the same
-                                    // ammo type.
-                                    for (final Gun g2 : QAMain.gunRegister.values()) {
-                                        if (!g2.is18Support()) {
-                                            if (g2.getAmmoType().equals(g.getAmmoType())) {
-                                                e.getItem().setItemStack(
-                                                        CustomItemManager.getItemType("gun").getItem(g2.getItemData().getMat(),
-                                                                g2.getItemData().getData(), g2.getItemData().getVariant()));
-                                                QAMain.DEBUG("Custom-validation check 4");
-                                                return;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } catch (Error | Exception e4) {
-                }
-                QAMain.checkforDups((Player) e.getEntity(), e.getItem().getItemStack());
+			if (QualityArmory.isGun(e.getItem().getItemStack())) {
+				Gun g = QualityArmory.getGun(e.getItem().getItemStack());
+				try {
+					if (QAMain.AutoDetectResourcepackVersion && !QAMain.MANUALLYSELECT18) {
+						if (com.viaversion.viaversion.api.Via.getAPI()
+								.getPlayerVersion(e.getPlayer()) < QAMain.ViaVersionIdfor_1_8) {
+							if (!g.is18Support()) {
+								for (Gun g2 : QAMain.gunRegister.values()) {
+									if (g2.is18Support()) {
+										if (g2.getDisplayName().equals(g.getDisplayName())) {
+											e.getItem().setItemStack(CustomItemManager.getItemType("gun").getItem(g2.getItemData().getMat(), g2.getItemData().getData(), g2.getItemData().getVariant()));
+											QAMain.DEBUG("Custom-validation check 1");
+											return;
+										}
+									}
+								}
+								// If there is no exact match for 1.8, get the closest gun that uses the same
+								// ammo type.
+								for (Gun g2 : QAMain.gunRegister.values()) {
+									if (g2.is18Support()) {
+										if (g2.getAmmoType().equals(g.getAmmoType())) {
+											e.getItem().setItemStack(CustomItemManager.getItemType("gun").getItem(g2.getItemData().getMat(), g2.getItemData().getData(), g2.getItemData().getVariant()));
+											QAMain.DEBUG("Custom-validation check 2");
+											return;
+										}
+									}
+								}
+							}
+						} else {
+							if (com.viaversion.viaversion.api.Via.getAPI()
+									.getPlayerVersion(e.getPlayer()) >= QAMain.ViaVersionIdfor_1_8) {
+								if (g.is18Support()) {
+									for (Gun g2 : QAMain.gunRegister.values()) {
+										if (!g2.is18Support()) {
+											if (g2.getDisplayName().equals(g.getDisplayName())) {
+												e.getItem().setItemStack(CustomItemManager.getItemType("gun").getItem(g2.getItemData().getMat(), g2.getItemData().getData(), g2.getItemData().getVariant()));
+												QAMain.DEBUG("Custom-validation check 3");
+												return;
+											}
+										}
+									}
+									// If there is no exact match for 1.8, get the closest gun that uses the same
+									// ammo type.
+									for (Gun g2 : QAMain.gunRegister.values()) {
+										if (!g2.is18Support()) {
+											if (g2.getAmmoType().equals(g.getAmmoType())) {
+												e.getItem().setItemStack(CustomItemManager.getItemType("gun").getItem(g2.getItemData().getMat(), g2.getItemData().getData(), g2.getItemData().getVariant()));
+												QAMain.DEBUG("Custom-validation check 4");
+												return;
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				} catch (Error | Exception e4) {
+				}
+				QAMain.checkforDups(e.getPlayer(), e.getItem().getItemStack());
 
                 if (QAMain.enablePrimaryWeaponHandler)
                     if (QualityArmory.isOverLimitForPrimaryWeapons(g, (Player) e.getEntity()))
@@ -646,23 +645,29 @@ public class QAListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onDeath(final PlayerDeathEvent e) {
-        for (final ItemStack is : new ArrayList<>(e.getDrops())) {
-            if (is == null)
-                continue;
-            if (QualityArmory.isIronSights(is)) {
-                e.getDrops().remove(is);
-                this.DEBUG("Removing IronSights");
-            } else if (is.hasItemMeta() && is.getItemMeta().hasDisplayName()
-                    && is.getItemMeta().getDisplayName().contains(QAMain.S_RELOADING_MESSAGE)) {
-                final Gun g = QualityArmory.getGun(is);
-                final ItemMeta im = is.getItemMeta();
-                im.setDisplayName(g.getDisplayName());
-                is.setItemMeta(im);
-                this.DEBUG("Removed Reloading suffix");
-            }
-        }
+
+	@SuppressWarnings("deprecation")
+	@EventHandler(priority = EventPriority.HIGH)
+	public void onDeath(PlayerDeathEvent e) {
+		for (ItemStack is : new ArrayList<>(e.getDrops())) {
+			if (is == null)
+				continue;
+			if (QualityArmory.isIronSights(is)) {
+				e.getDrops().remove(is);
+				DEBUG("Removing IronSights");
+			} else if (is.hasItemMeta() && is.getItemMeta().hasDisplayName() && is.getItemMeta().getDisplayName().contains(QAMain.S_RELOADING_MESSAGE)) {
+				Gun g = QualityArmory.getGun(is);
+				ItemMeta im = is.getItemMeta();
+				im.setDisplayName(g.getDisplayName());
+				is.setItemMeta(im);
+				DEBUG("Removed Reloading suffix");
+			}
+		}
+
+		if (QAMain.showAmmoInXPBar) {
+			e.setDroppedExp(0);
+			e.setNewTotalExp(0);
+		}
 
         if (e.getDeathMessage() != null
                 && e.getDeathMessage().contains(QualityArmory.getIronSightsItemStack().getItemMeta().getDisplayName())) {
@@ -961,8 +966,9 @@ public class QAListener implements Listener {
         if (QualityArmory.isIronSights(prev) && QualityArmory.isCustomItem(e.getPlayer().getInventory().getItemInOffHand())) {
             final int ammoCount = Gun.getAmount(e.getPlayer());
 
-            e.getPlayer().getInventory().setItem(e.getPreviousSlot(), e.getPlayer().getInventory().getItemInOffHand());
-            e.getPlayer().getInventory().setItemInOffHand(null);
+			e.getPlayer().getInventory().setItem(e.getPreviousSlot(), e.getPlayer().getInventory().getItemInOffHand());
+			e.getPlayer().getInventory().setItemInOffHand(null);
+			QAMain.toggleNightvision(e.getPlayer(), null, false);
 
             Gun.updateAmmo(null, e.getPlayer().getInventory().getItem(e.getPreviousSlot()), ammoCount);
         }
@@ -984,15 +990,16 @@ public class QAListener implements Listener {
             }
         }
 
-        if (QAMain.showAmmoInXPBar) {
-            final CustomBaseObject customBase = QualityArmory.getCustomItem(newslot);
-            if (customBase instanceof Gun) {
-                GunUtil.updateXPBar(e.getPlayer(), (Gun) customBase, QualityArmory.getBulletsInHand(e.getPlayer()));
-            } else {
-                e.getPlayer().setTotalExperience(0);
-            }
-        }
-    }
+		if(QAMain.showAmmoInXPBar) {
+			CustomBaseObject customBase = QualityArmory.getCustomItem(newslot);
+			if (customBase instanceof Gun) {
+				GunUtil.updateXPBar(e.getPlayer(), (Gun) customBase,Gun.getAmount(newslot));
+			}else{
+				e.getPlayer().setExp(0);
+				e.getPlayer().setLevel(0);
+			}
+		}
+	}
 
     @EventHandler
     public void onQuit(final PlayerQuitEvent e) {
