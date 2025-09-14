@@ -79,7 +79,7 @@ public class MaterialStorage {
 
     public static MaterialStorage getMS(final ItemStack is) { return MaterialStorage.getMS(is, MaterialStorage.getVariant(is)); }
 
-    @SuppressWarnings("UnstableApiUsage")
+    @SuppressWarnings({ "UnstableApiUsage", "deprecation" })
     public static MaterialStorage getMS(final ItemStack is, final int variant) {
 
         if (is == null || is.getItemMeta() == null) {
@@ -94,8 +94,8 @@ public class MaterialStorage {
                 temp = PlayerProfiles.getTextureValue(profile);
         }
         try {
-            return MaterialStorage.getMS(is.getType(), is.getItemMeta().hasCustomModelData() ? is.getItemMeta().getCustomModelData() : 0, variant,
-                    is.getType() == MultiVersionLookup.getSkull() ? ((SkullMeta) is.getItemMeta()).getOwner() : null, temp);
+            return MaterialStorage.getMS(is.getType(), is.getItemMeta().hasCustomModelData() ? is.getItemMeta().getCustomModelData() : 0,
+                    variant, is.getType() == MultiVersionLookup.getSkull() ? ((SkullMeta) is.getItemMeta()).getOwner() : null, temp);
 
         } catch (Error | Exception e4) {
             if (QAMain.DEBUG)

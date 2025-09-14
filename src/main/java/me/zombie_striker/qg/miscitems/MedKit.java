@@ -9,6 +9,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 
+import com.cryptomorin.xseries.XPotion;
+
 import me.zombie_striker.customitemmanager.ArmoryBaseObject;
 import me.zombie_striker.customitemmanager.CustomBaseObject;
 import me.zombie_striker.customitemmanager.CustomItemManager;
@@ -16,23 +18,21 @@ import me.zombie_striker.customitemmanager.MaterialStorage;
 import me.zombie_striker.qg.QAMain;
 import me.zombie_striker.qg.api.QualityArmory;
 import me.zombie_striker.qg.handlers.BulletWoundHandler;
-import com.cryptomorin.xseries.XPotion;
+import me.zombie_striker.qg.handlers.HotbarMessager;
 
 public class MedKit extends CustomBaseObject implements ArmoryBaseObject {
 
-	HashMap<UUID, Long> lastTimeHealed = new HashMap<>();
-	HashMap<UUID, Double> PercentTimeHealed = new HashMap<>();
+    HashMap<UUID, Long> lastTimeHealed = new HashMap<>();
+    HashMap<UUID, Double> PercentTimeHealed = new HashMap<>();
 
-	public MedKit(MaterialStorage ms, String name, String displayname, ItemStack[] ings, int cost) {
-		super(name, ms, displayname, null, false);
-		super.setIngredients(ings);
-		this.setPrice(cost);
-	}
+    public MedKit(final MaterialStorage ms, final String name, final String displayname, final ItemStack[] ings, final int cost) {
+        super(name, ms, displayname, null, false);
+        super.setIngredients(ings);
+        this.setPrice(cost);
+    }
 
-	@Override
-	public int getCraftingReturn() {
-		return 1;
-	}
+    @Override
+    public int getCraftingReturn() { return 1; }
 
     @Override
     public boolean is18Support() { return false; }
@@ -58,14 +58,14 @@ public class MedKit extends CustomBaseObject implements ArmoryBaseObject {
 
                 final double p2 = this.PercentTimeHealed.get(healer.getUniqueId());
 
-				if (p2 + percent < 100) {
-					PercentTimeHealed.put(healer.getUniqueId(), p2 + percent);
-				} else {
-					healer.playSound(healer.getLocation(), getSoundOnEquip(), 1, 1);
-					healer.setHealth(Math.min(healer.getMaxHealth(), healer.getHealth() + QAMain.S_MEDKIT_HEAL_AMOUNT));
-					PercentTimeHealed.remove(healer.getUniqueId());
-					lastTimeHealed.remove(healer.getUniqueId());
-				}
+                if (p2 + percent < 100) {
+                    this.PercentTimeHealed.put(healer.getUniqueId(), p2 + percent);
+                } else {
+                    healer.playSound(healer.getLocation(), this.getSoundOnEquip(), 1, 1);
+                    healer.setHealth(Math.min(healer.getMaxHealth(), healer.getHealth() + QAMain.S_MEDKIT_HEAL_AMOUNT));
+                    this.PercentTimeHealed.remove(healer.getUniqueId());
+                    this.lastTimeHealed.remove(healer.getUniqueId());
+                }
 
                 final int totalBars = 25;
                 final double percentLoss = (p2 + percent) / 100;
@@ -104,22 +104,22 @@ public class MedKit extends CustomBaseObject implements ArmoryBaseObject {
                 ? BulletWoundHandler.bleedoutMultiplier.get(healer.getUniqueId())
                 : 0;
 
-		if (newRate >= 0) {
-			BulletWoundHandler.bleedoutMultiplier.remove(healer.getUniqueId());
-			BulletWoundHandler.bloodLevel.remove(healer.getUniqueId());
+        if (newRate >= 0) {
+            BulletWoundHandler.bleedoutMultiplier.remove(healer.getUniqueId());
+            BulletWoundHandler.bloodLevel.remove(healer.getUniqueId());
 
-			try {
-				healer.removePotionEffect(XPotion.NAUSEA.getPotionEffectType());
-				healer.removePotionEffect(PotionEffectType.BLINDNESS);
-			} catch (Error | Exception e4) {
-			}
+            try {
+                healer.removePotionEffect(XPotion.NAUSEA.getPotionEffectType());
+                healer.removePotionEffect(PotionEffectType.BLINDNESS);
+            } catch (Error | Exception e4) {
+            }
 
-			return true;
-		}
+            return true;
+        }
 
-		try {
-			int totalBars = 25;
-			int healthBars = (int) (percentBlood * totalBars);
+        try {
+            final int totalBars = 25;
+            final int healthBars = (int) (percentBlood * totalBars);
 
             final StringBuilder levelbar = new StringBuilder();
             levelbar.append(severity);
@@ -139,16 +139,14 @@ public class MedKit extends CustomBaseObject implements ArmoryBaseObject {
     @Override
     public boolean onShift(final Player shooter, final ItemStack usedItem, final boolean toggle) { return false; }
 
-	@Override
-	public boolean onLMB(Player e, ItemStack usedItem) {
-		return false;
-	}
+    @Override
+    public boolean onLMB(final Player e, final ItemStack usedItem) { return false; }
 
-	@Override
-	public ItemStack getItemStack() {
-		return CustomItemManager.getItemType("gun").getItem(this.getItemData().getMat(), this.getItemData().getData(),
-				this.getItemData().getVariant());
-	}
+    @Override
+    public ItemStack getItemStack() {
+        return CustomItemManager.getItemType("gun").getItem(this.getItemData().getMat(), this.getItemData().getData(),
+                this.getItemData().getVariant());
+    }
 
     @Override
     public boolean onSwapTo(final Player shooter, final ItemStack usedItem) {

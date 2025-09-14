@@ -73,9 +73,10 @@ public class GunYMLLoader {
                             final List<String> extraLore2 = f2.contains("lore") ? f2.getStringList("lore") : null;
                             final List<String> extraLore = new ArrayList<String>();
                             try {
-                                for (final String lore : extraLore2) {
-                                    extraLore.add(LocalUtils.colorize(lore));
-                                }
+                                if (extraLore2 != null)
+                                    for (final String lore : extraLore2) {
+                                        extraLore.add(LocalUtils.colorize(lore));
+                                    }
                             } catch (Error | Exception re52) {
                             }
 
@@ -141,9 +142,10 @@ public class GunYMLLoader {
                             final List<String> rawLore = f2.contains("lore") ? f2.getStringList("lore") : null;
                             final List<String> lore = new ArrayList<String>();
                             try {
-                                for (final String lore2 : rawLore) {
-                                    lore.add(LocalUtils.colorize(lore2));
-                                }
+                                if (rawLore != null)
+                                    for (final String lore2 : rawLore) {
+                                        lore.add(LocalUtils.colorize(lore2));
+                                    }
                             } catch (Error | Exception re52) {
                             }
 
@@ -193,9 +195,10 @@ public class GunYMLLoader {
                             final List<String> rawLore = f2.contains("lore") ? f2.getStringList("lore") : null;
                             final List<String> lore = new ArrayList<String>();
                             try {
-                                for (final String lore2 : rawLore) {
-                                    lore.add(LocalUtils.colorize(lore2));
-                                }
+                                if (rawLore != null)
+                                    for (final String lore2 : rawLore) {
+                                        lore.add(LocalUtils.colorize(lore2));
+                                    }
                             } catch (Error | Exception re52) {
                             }
 
@@ -254,7 +257,7 @@ public class GunYMLLoader {
                                 base.setEnableShop(allowInShop);
                             }
 
-                            if (f2.contains("maxItemStack"))
+                            if (f2.contains("maxItemStack") && base != null)
                                 base.setMaxItemStack(f2.getInt("maxItemStack"));
                             if (base instanceof final ThrowableItems throwableItems) {
                                 if (f2.contains("ThrowSpeed"))
@@ -293,9 +296,10 @@ public class GunYMLLoader {
                 final List<String> extraLore = new ArrayList<String>();
 
                 try {
-                    for (final String lore : extraLore2) {
-                        extraLore.add(LocalUtils.colorize(lore));
-                    }
+                    if (extraLore2 != null)
+                        for (final String lore : extraLore2) {
+                            extraLore.add(LocalUtils.colorize(lore));
+                        }
                 } catch (Error | Exception re52) {
                 }
                 if (weatype.isGun()) {
@@ -525,9 +529,10 @@ public class GunYMLLoader {
 
                             final List<String> extraLore = new ArrayList<String>();
                             try {
-                                for (final String lore : extraLore2) {
-                                    extraLore.add(LocalUtils.colorize(lore));
-                                }
+                                if (extraLore2 != null)
+                                    for (final String lore : extraLore2) {
+                                        extraLore.add(LocalUtils.colorize(lore));
+                                    }
                             } catch (Error | Exception re52) {
                             }
                             if (baseGunM == null) {

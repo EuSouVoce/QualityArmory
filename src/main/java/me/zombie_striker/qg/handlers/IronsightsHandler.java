@@ -10,29 +10,30 @@ import me.zombie_striker.qg.api.QualityArmory;
 import me.zombie_striker.qg.api.WeaponInteractEvent;
 import me.zombie_striker.qg.guns.Gun;
 
+@SuppressWarnings("deprecation")
 public class IronsightsHandler {
 
     public static Material ironsightsMaterial = Material.DIAMOND_AXE;
     public static int ironsightsData = 21;
     public static String ironsightsDisplay = "Iron Sights Enabled";
 
-
-	public static void aim(Player player){
-			if(!QualityArmory.isIronSights(player.getItemInHand())){
-				//offHandStorage.put(player, player.getInventory().getItemInOffHand());
-				if(player.getInventory().getItemInOffHand() != null && !player.getInventory().getItemInOffHand().getType().equals(Material.AIR)){
-					if(player.getInventory().firstEmpty()==-1){
-						player.getWorld().dropItem(player.getLocation(),player.getInventory().getItemInOffHand());
-					}else {
-						player.getInventory().addItem(player.getInventory().getItemInOffHand());
-					}
-				}
-				if (player.getItemInHand() != null && QualityArmory.isGun(player.getItemInHand())) {
-					Gun gun = QualityArmory.getGun(player.getItemInHand());
-					QAMain.toggleNightvision(player, gun, true);
-					Bukkit.getPluginManager().callEvent(new WeaponInteractEvent(player, gun, WeaponInteractEvent.InteractType.AIM));
-				}
-				final int ammo = Gun.getAmount(player);
+    public static void aim(final Player player) {
+        if (!QualityArmory.isIronSights(player.getItemInHand())) {
+            // offHandStorage.put(player, player.getInventory().getItemInOffHand());
+            if (player.getInventory().getItemInOffHand() != null
+                    && !player.getInventory().getItemInOffHand().getType().equals(Material.AIR)) {
+                if (player.getInventory().firstEmpty() == -1) {
+                    player.getWorld().dropItem(player.getLocation(), player.getInventory().getItemInOffHand());
+                } else {
+                    player.getInventory().addItem(player.getInventory().getItemInOffHand());
+                }
+            }
+            if (player.getItemInHand() != null && QualityArmory.isGun(player.getItemInHand())) {
+                final Gun gun = QualityArmory.getGun(player.getItemInHand());
+                QAMain.toggleNightvision(player, gun, true);
+                Bukkit.getPluginManager().callEvent(new WeaponInteractEvent(player, gun, WeaponInteractEvent.InteractType.AIM));
+            }
+            final int ammo = Gun.getAmount(player);
 
             player.getInventory().setItemInOffHand(player.getInventory().getItemInMainHand());
             player.getInventory().setItemInMainHand(QualityArmory.getIronSightsItemStack());

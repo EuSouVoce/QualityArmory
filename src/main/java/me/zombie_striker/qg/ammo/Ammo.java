@@ -86,6 +86,7 @@ public class Ammo extends CustomBaseObject implements ArmoryBaseObject {
     @Override
     public void set18Supported(final boolean b) {}
 
+    @SuppressWarnings("deprecation")
     @Override
     public boolean onRMB(final Player e, final ItemStack usedItem) {
         QAMain.DEBUG("The item being click is ammo!");

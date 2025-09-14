@@ -26,6 +26,7 @@ import org.bukkit.World;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -45,7 +46,6 @@ import org.bukkit.scoreboard.Team;
 
 import com.cryptomorin.xseries.XPotion;
 import com.cryptomorin.xseries.reflection.XReflection;
-
 
 import de.tr7zw.changeme.nbtapi.NBT;
 import de.tr7zw.changeme.nbtapi.utils.MinecraftVersion;
@@ -113,33 +113,6 @@ import me.zombie_striker.qg.npcs.Gunner;
 import me.zombie_striker.qg.npcs.GunnerTrait;
 import me.zombie_striker.qg.npcs_sentinel.SentinelQAHandler;
 import me.zombie_striker.qg.utils.LocalUtils;
-import org.bukkit.*;
-import org.bukkit.command.BlockCommandSender;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.SkullMeta;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.scoreboard.Team;
-
-import java.io.*;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.logging.Level;
-import java.util.stream.Collectors;
 
 public class QAMain extends JavaPlugin {
 
@@ -697,8 +670,8 @@ public class QAMain extends JavaPlugin {
         }
 
         if (!NBT.preloadApi()) {
-            getLogger().severe("NBT-API wasn't initialized properly, disabling the plugin");
-            getPluginLoader().disablePlugin(this);
+            this.getLogger().severe("NBT-API wasn't initialized properly, disabling the plugin");
+            this.getPluginLoader().disablePlugin(this);
             return;
         }
 
@@ -1051,10 +1024,10 @@ public class QAMain extends JavaPlugin {
         QAMain.showOutOfAmmoOnTitle = (boolean) this.a("showOutOfAmmoOnTitle", false);
         QAMain.showReloadOnTitle = (boolean) this.a("showReloadingTitle", false);
 
-        showAmmoInXPBar = (boolean) a("showAmmoInXPBar", false);
-        perWeaponPermission = (boolean) a("perWeaponPermission", false);
+        QAMain.showAmmoInXPBar = (boolean) this.a("showAmmoInXPBar", false);
+        QAMain.perWeaponPermission = (boolean) this.a("perWeaponPermission", false);
 
-        useMoveForRecoil = (boolean) a("useMoveForRecoil", useMoveForRecoil);
+        QAMain.useMoveForRecoil = (boolean) this.a("useMoveForRecoil", QAMain.useMoveForRecoil);
 
         QAMain.enableExplosionDamage = (boolean) this.a("enableExplosionDamage", false);
         QAMain.enableExplosionDamageDrop = (boolean) this.a("enableExplosionDamageDrop", false);
@@ -1074,17 +1047,17 @@ public class QAMain extends JavaPlugin {
         QAMain.ENABLE_LORE_INFO = (boolean) this.a("enable_lore_gun-info_messages", true);
         QAMain.ENABLE_LORE_HELP = (boolean) this.a("enable_lore_control-help_messages", true);
 
-        HeadshotOneHit = (boolean) a("Enable_Headshot_Instantkill", HeadshotOneHit);
-        headshotPling = (boolean) a("Enable_Headshot_Notification_Sound", headshotPling);
-        headshot_sound = (String) a("Headshot_Notification_Sound", headshot_sound);
-        headshotGoreSounds = (boolean) a("Enable_Headshot_Sounds", headshotGoreSounds);
+        QAMain.HeadshotOneHit = (boolean) this.a("Enable_Headshot_Instantkill", QAMain.HeadshotOneHit);
+        QAMain.headshotPling = (boolean) this.a("Enable_Headshot_Notification_Sound", QAMain.headshotPling);
+        QAMain.headshot_sound = (String) this.a("Headshot_Notification_Sound", QAMain.headshot_sound);
+        QAMain.headshotGoreSounds = (boolean) this.a("Enable_Headshot_Sounds", QAMain.headshotGoreSounds);
 
-        headshotBlacklist.clear();
+        QAMain.headshotBlacklist.clear();
 
-        List<String> blacklist = (List<String>) a("Headshot_Blacklist", new ArrayList<String>());
-        for (String s : blacklist) {
+        final List<String> blacklist = (List<String>) this.a("Headshot_Blacklist", new ArrayList<String>());
+        for (final String s : blacklist) {
             try {
-                headshotBlacklist.add(EntityType.valueOf(s));
+                QAMain.headshotBlacklist.add(EntityType.valueOf(s));
             } catch (Error | Exception e4) {
             }
         }
@@ -1200,11 +1173,6 @@ public class QAMain extends JavaPlugin {
                 QAMain.expansionPacks.add(MaterialStorage.getMS(Material.DIAMOND_AXE, 115, 0));
                 QAMain.expansionPacks.add(MaterialStorage.getMS(Material.DIAMOND_AXE, 116, 0));
             }
-        } else if (true && !QAMain.MANUALLYSELECT14) {
-            // 1.20.6 Use crossbows
-            CustomItemManager.registerItemType(this.getDataFolder(), "gun",
-                    new me.zombie_striker.customitemmanager.qa.versions.V1_20.CustomGunItem()
-                            .setOverrideAttackSpeed((boolean) this.a("overrideAttackSpeed", true)));
         } else if (true || QAMain.MANUALLYSELECT14) {
             // 1.14. Use crossbows
             CustomItemManager.registerItemType(this.getDataFolder(), "gun",
@@ -1218,20 +1186,20 @@ public class QAMain extends JavaPlugin {
         }
         ((AbstractCustomGunItem) CustomItemManager.getItemType("gun")).initIronsights(this.getDataFolder());
 
-        if (overrideURL) {
-            if (!getConfig().contains("DefaultResourcepack")) {
-                getConfig().set("DefaultResourcepack", CustomItemManager.getResourcepackProvider().serialize());
-                saveTheConfig = true;
+        if (QAMain.overrideURL) {
+            if (!this.getConfig().contains("DefaultResourcepack")) {
+                this.getConfig().set("DefaultResourcepack", CustomItemManager.getResourcepackProvider().serialize());
+                this.saveTheConfig = true;
             } else {
-                if (getConfig().get("DefaultResourcepack") instanceof String)
-                    CustomItemManager.setResourcepack(new StaticPackProvider(getConfig().getString("DefaultResourcepack")));
+                if (this.getConfig().get("DefaultResourcepack") instanceof String)
+                    CustomItemManager.setResourcepack(new StaticPackProvider(this.getConfig().getString("DefaultResourcepack")));
                 else {
-                    ConfigurationSection packSection = getConfig().getConfigurationSection("DefaultResourcepack");
+                    final ConfigurationSection packSection = this.getConfig().getConfigurationSection("DefaultResourcepack");
                     if (packSection != null) {
                         if (packSection.contains("21")) {
                             packSection.set("21-4", packSection.getString("21"));
                             packSection.set("21", null);
-                            saveTheConfig = true;
+                            this.saveTheConfig = true;
                         }
 
                         CustomItemManager.setResourcepack(new MultiVersionPackProvider(packSection));
@@ -1239,17 +1207,16 @@ public class QAMain extends JavaPlugin {
                 }
             }
         } else {
-            if (!getConfig().contains("DefaultResourcepack")
-                    || !getConfig().getString("DefaultResourcepack").equals(CustomItemManager.getResourcepack(null))) {
-                getConfig().set("DefaultResourcepack", CustomItemManager.getResourcepackProvider().serialize());
-                saveTheConfig = true;
+            if (!this.getConfig().contains("DefaultResourcepack")
+                    || !this.getConfig().getString("DefaultResourcepack").equals(CustomItemManager.getResourcepack(null))) {
+                this.getConfig().set("DefaultResourcepack", CustomItemManager.getResourcepackProvider().serialize());
+                this.saveTheConfig = true;
             }
         }
 
-
-        if (saveTheConfig) {
-            DEBUG(prefix + " Needed to save config: code=2");
-            saveConfig();
+        if (this.saveTheConfig) {
+            QAMain.DEBUG(QAMain.prefix + " Needed to save config: code=2");
+            this.saveConfig();
         }
 
         // Skull texture
@@ -1518,9 +1485,9 @@ public class QAMain extends JavaPlugin {
                         QAMain.resourcepackwhitelist.set("Names_Of_players_to_bypass", QAMain.namesToBypass);
                     }
 
-                    player.sendMessage(prefix + S_RESOURCEPACK_DOWNLOAD);
+                    player.sendMessage(QAMain.prefix + QAMain.S_RESOURCEPACK_DOWNLOAD);
                     player.sendMessage(CustomItemManager.getResourcepack(player));
-                    player.sendMessage(prefix + S_RESOURCEPACK_BYPASS);
+                    player.sendMessage(QAMain.prefix + QAMain.S_RESOURCEPACK_BYPASS);
 
                     return true;
                 }
@@ -1595,29 +1562,36 @@ public class QAMain extends JavaPlugin {
                             }
 
                             if (args.length >= 6) {
-                                if (args[2].equals("~"))
+                                if (args[2].equals("~") && relLoc != null)
                                     w = relLoc.getWorld();
                                 else
                                     w = Bukkit.getWorld(args[5]);
                             } else {
-                                w = relLoc.getWorld();
+                                if (relLoc != null)
+                                    w = relLoc.getWorld();
                             }
 
                             double x = 0;
                             double y = 0;
                             double z = 0;
-                            if (args[2].equals("~"))
-                                x = relLoc.getX();
-                            else
+                            if (args[2].equals("~")) {
+                                if (relLoc != null)
+                                    x = relLoc.getX();
+                            } else {
                                 x = Double.parseDouble(args[2]);
-                            if (args[3].equals("~"))
-                                y = relLoc.getY();
-                            else
+                            }
+                            if (args[3].equals("~")) {
+                                if (relLoc != null)
+                                    y = relLoc.getY();
+                            } else {
                                 y = Double.parseDouble(args[3]);
-                            if (args[4].equals("~"))
-                                z = relLoc.getZ();
-                            else
+                            }
+                            if (args[4].equals("~")) {
+                                if (relLoc != null)
+                                    z = relLoc.getZ();
+                            } else {
                                 z = Double.parseDouble(args[4]);
+                            }
                             loc = new Location(w, x, y, z);
                         }
                         if (loc == null) {
@@ -1751,19 +1725,19 @@ public class QAMain extends JavaPlugin {
                         }
 
                         if (args.length == 2) {
-                            CustomBaseObject g = QualityArmory.getCustomItemByName(args[1]);
+                            final CustomBaseObject g = QualityArmory.getCustomItemByName(args[1]);
                             if (g == null) {
-                                player.openInventory(createCraft(0));
+                                player.openInventory(QAMain.createCraft(0));
                                 return true;
                             }
 
-                            if (!lookForIngre(player, g)) {
+                            if (!QAMain.lookForIngre(player, g)) {
                                 player.sendMessage(QAMain.prefix + QAMain.S_missingIngredients);
                                 return true;
                             }
 
-                            removeForIngre(player, g);
-                            ItemStack result = QualityArmory.getCustomItemAsItemStack(g);
+                            QAMain.removeForIngre(player, g);
+                            final ItemStack result = QualityArmory.getCustomItemAsItemStack(g);
                             result.setAmount(g.getCraftingReturn());
 
                             player.getInventory().addItem(result);
@@ -1771,7 +1745,7 @@ public class QAMain extends JavaPlugin {
                             return true;
                         }
 
-                        player.openInventory(createCraft(0));
+                        player.openInventory(QAMain.createCraft(0));
                         return true;
 
                     }
@@ -1804,8 +1778,8 @@ public class QAMain extends JavaPlugin {
         return true;
     }
 
-    public void sendHelp(CommandSender sender) {
-        sender.sendMessage(LocalUtils.colorize(prefix + " Commands:"));
+    public void sendHelp(final CommandSender sender) {
+        sender.sendMessage(LocalUtils.colorize(QAMain.prefix + " Commands:"));
         sender.sendMessage(ChatColor.GOLD + "/QA give <Item> [player] [amount]:" + ChatColor.GRAY
                 + " Gives the sender the item specified (guns, ammo, misc.)");
         sender.sendMessage(ChatColor.GOLD + "/QA craft [Item]:" + ChatColor.GRAY + " Opens the crafting menu.");

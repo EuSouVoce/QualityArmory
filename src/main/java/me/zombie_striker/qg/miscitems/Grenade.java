@@ -182,7 +182,8 @@ public class Grenade extends CustomBaseObject implements ThrowableItems {
                 }
             }
             if (slot >= -1) {
-                if (stack.getAmount() > 1) {
+
+                if (stack != null && stack.getAmount() > 1) {
                     stack.setAmount(stack.getAmount() - 1);
                 } else {
                     stack = null;

@@ -61,6 +61,7 @@ public class CustomGunItem extends AbstractCustomGunItem {
         return this.getItem(MaterialStorage.getMS(material, data, variant));
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public ItemStack getItem(final MaterialStorage ms) {
         final CustomBaseObject base = QualityArmory.getCustomItem(ms);

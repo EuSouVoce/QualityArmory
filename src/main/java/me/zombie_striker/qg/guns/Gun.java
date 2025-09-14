@@ -167,6 +167,7 @@ public class Gun extends CustomBaseObject implements ArmoryBaseObject, Comparabl
 
     public static int getAmount(final Player player) { return Gun.getAmount(player.getInventory().getItemInMainHand()); }
 
+    @SuppressWarnings("deprecation")
     public static int getAmount(final ItemStack is) {
         if (is.getType().equals(Material.AIR))
             return 0;
@@ -185,9 +186,10 @@ public class Gun extends CustomBaseObject implements ArmoryBaseObject, Comparabl
         });
     }
 
-    public static void updateAmmo(Gun g, Player player, int amount) {
-        ItemStack current = player.getInventory().getItemInHand();
-        updateAmmo(g, current, amount);
+    public static void updateAmmo(final Gun g, final Player player, final int amount) {
+        @SuppressWarnings("deprecation")
+        final ItemStack current = player.getInventory().getItemInHand();
+        Gun.updateAmmo(g, current, amount);
 
         if (QAMain.showAmmoInXPBar)
             GunUtil.updateXPBar(player, g, amount);
@@ -665,8 +667,8 @@ public class Gun extends CustomBaseObject implements ArmoryBaseObject, Comparabl
         try {
             if (QAMain.enableInteractChests) {
                 final Block b = player.getTargetBlock(null, 6);
-                if (b != null && (b.getType() == Material.CHEST || b.getType() == Material.TRAPPED_CHEST)
-                        || b.getType() == Material.ENDER_CHEST) {
+                if (b != null && ((b.getType() == Material.CHEST || b.getType() == Material.TRAPPED_CHEST)
+                        || b.getType() == Material.ENDER_CHEST)) {
                     QAMain.DEBUG("Chest interactable check has return true!");
                     return true;
                 }

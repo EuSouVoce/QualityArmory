@@ -5,6 +5,7 @@ import org.bukkit.block.Block;
 
 import com.cryptomorin.xseries.XSound;
 
+@SuppressWarnings("deprecation")
 public class SoundHandler {
 
     public static Sound getSoundWhenShot(final Block b) {
